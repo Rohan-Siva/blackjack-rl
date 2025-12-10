@@ -1,113 +1,93 @@
 # Blackjack Reinforcement Learning
 
-A Deep Q-Learning (DQN) agent trained to play Blackjack using the RLCard toolkit. This project demonstrates how reinforcement learning can learn optimal strategies through self-play.
+A comprehensive Reinforcement Learning project comparing Deep Q-Learning (DQN) and Monte Carlo (MC) methods for playing Blackjack, using the [RLCard](https://github.com/datamllab/rlcard) toolkit.
 
 ## 🎯 Project Overview
 
-This project implements a DQN agent that learns to play Blackjack by interacting with the RLCard environment. The agent improves its strategy over time through experience replay and epsilon-greedy exploration.
+This project explores two distinct RL approaches to solving Blackjack:
+1.  **Deep Q-Learning (DQN)**: A neural network-based approximate solution with Experience Replay.
+2.  **Monte Carlo Control**: A tabular method learning directly from complete episodes.
 
-## 📊 Results
+We perform rigorous **hyperparameter tuning** and **statistical evaluation** to determine the most effective strategy.
 
-### Training Performance
+## 📊 Results & Analysis
 
-The agent was trained for **2,000 episodes** using Deep Q-Learning with the following results:
+### 🏆 Agent Comparison
 
-![Training Curve](visualizations/training_curve.png)
+We evaluated each agent over **1,000 episodes**. The results highlight the statistical significance of valid strategies over random play.
 
-![Win Rate Progress](visualizations/win_rate.png)
+| Agent | Average Reward | 95% Confidence Interval | Win Rate |
+| :--- | :--- | :--- | :--- |
+| **DQN Agent** | **-0.0850** | **± 0.0591** | **41.5%** |
+| MC Agent | -0.1170 | ± 0.0590 | 40.1% |
+| Random Agent | -0.3950 | ± 0.0556 | 28.3% |
 
-![Epsilon Decay](visualizations/epsilon_decay.png)
+![Comparison Plot](visualizations/evaluation_comparison_mc.png)
 
-### Evaluation Results (1,000 Episodes)
+### 🎛️ Hyperparameter Tuning (DQN)
 
-| Agent | Average Reward | Win Rate |
-|-------|---------------|----------|
-| **DQN Agent** | -0.030 | **44.3%** |
-| Random Agent | -0.413 | 27.3% |
+We conducted a grid search to find the optimal DQN architecture. The simpler `[64, 64]` network outperformed deeper ones, likely due to the small state space of Blackjack preventing overfitting.
 
-The DQN agent significantly outperforms the random baseline, achieving a **62% improvement** in win rate.
+| Hidden Sizes | Learning Rate | Avg Reward | Win Rate |
+| :--- | :--- | :--- | :--- |
+| **[64, 64]** | **0.01** | **-0.1000** | **0.4300** |
+| [64, 64, 64] | 0.001 | -0.1000 | 0.4400 |
+| [64, 64] | 0.001 | -0.1800 | 0.3700 |
+| [128, 128] | 0.01 | -0.2300 | 0.3700 |
 
-## 🏗️ Architecture
+## 🏗️ Methodologies
 
-### DQN Network
-- **Input**: State observation vector (player hand, dealer card)
-- **Hidden Layers**: 2 fully connected layers (64 units each)
-- **Activation**: ReLU
-- **Output**: Q-values for each action (Hit/Stand)
+### 1. Deep Q-Network (DQN)
+*   **Architecture**: Customizable MLP (default `[64, 64]`).
+*   **Features**: Experience Replay (Buffer: 20,000), Target Network (Update: 10).
+*   **Input**: Vector of [Player Sum, Dealer Card, Ace Status].
 
-### Training Configuration
-- **Replay Buffer**: 20,000 transitions
-- **Batch Size**: 64
-- **Learning Rate**: 0.001
-- **Gamma (Discount Factor)**: 0.99
-- **Epsilon Decay**: 0.9995 (from 1.0 to 0.01)
-- **Target Network Update**: Every 10 episodes
+### 2. Monte Carlo (MC)
+*   **Type**: On-Policy First-Visit MC Control.
+*   **Update**: $Q(s,a) \leftarrow Avg(Returns)$.
+*   **Pros**: Unbiased, simple to implement for episodic tasks.
 
 ## 🚀 Getting Started
 
 ### Installation
 
-1. **Clone the repository**:
 ```bash
-git clone <your-repo-url>
-cd poker-rl
-```
-
-2. **Create virtual environment**:
-```bash
-python3 -m venv poker-rl
-source poker-rl/bin/activate  # On Windows: poker-rl\Scripts\activate
-```
-
-3. **Install dependencies**:
-```bash
+git clone https://github.com/Rohan-Siva/blackjack-rl.git
+cd blackjack-rl
 pip install -r requirements.txt
 ```
 
-### Training
-
-Train a new agent from scratch:
+### 1. Hyperparameter Tuning (Recommended First Step)
+Run a grid search to find the best DQN configuration. This automatically saves the best model and deletes the rest.
 
 ```bash
-python -m src.train --num_episodes 2000 --save_dir models
+python -m src.tune_hyperparameters --num_episodes 2000
 ```
 
-**Arguments**:
-- `--num_episodes`: Number of training episodes (default: 5000)
-- `--save_dir`: Directory to save model and metrics (default: models)
-- `--seed`: Random seed for reproducibility (default: 42)
-- `--device`: Device to use (cpu/cuda, default: cpu)
-- `--target_update`: Frequency of target network updates (default: 10)
+### 2. Training Individual Agents
 
-### Evaluation
-
-Evaluate a trained agent:
-
+**Train DQN**:
 ```bash
-python -m src.evaluate --model_path models/dqn_agent.pth --num_episodes 1000
+python -m src.train --hidden_sizes 64 64 --lr 0.01 --num_episodes 2000
 ```
 
-**Arguments**:
-- `--model_path`: Path to trained model (required)
-- `--num_episodes`: Number of evaluation episodes (default: 1000)
-- `--seed`: Random seed (default: 42)
-
-### Play Against the Agent
-
-Play Blackjack with AI assistance:
-
+**Train Monte Carlo**:
 ```bash
-python -m src.play --model_path models/dqn_agent.pth
+python -m src.train_mc --num_episodes 50000
 ```
 
-The agent will suggest actions while you play!
-
-### Generate Visualizations
-
-Create training visualizations from saved metrics:
+### 3. Evaluation & Visualization
+Generate the comparison plot and statistical metrics:
 
 ```bash
-python -m src.visualize --metrics_path models/training_metrics.json --output_dir visualizations
+python -m src.evaluate --model_path models/tune_h64_64_lr0.01/dqn_agent.pth
+```
+
+### 4. Interactive Play
+Play a game against your trained agent!
+
+```bash
+python -m src.play --model_path models/tune_h64_64_lr0.01/dqn_agent.pth
 ```
 
 ## 📁 Project Structure
@@ -115,79 +95,18 @@ python -m src.visualize --metrics_path models/training_metrics.json --output_dir
 ```
 poker-rl/
 ├── src/
-│   ├── __init__.py
-│   ├── model.py          # DQN neural network architecture
-│   ├── agent.py          # DQNAgent class with training logic
-│   ├── utils.py          # Replay buffer and utilities
-│   ├── train.py          # Training script
-│   ├── evaluate.py       # Evaluation script
-│   ├── play.py           # Interactive play interface
-│   └── visualize.py      # Visualization generation
-├── models/               # Saved models and metrics
-├── visualizations/       # Training plots
-├── requirements.txt      # Project dependencies
-└── README.md
+│   ├── mc_agent.py          # Monte Carlo Agent implementation [NEW]
+│   ├── tune_hyperparameters.py # Grid search orchestrator [NEW]
+│   ├── train_mc.py          # MC training script [NEW]
+│   ├── model.py             # Dynamic DQN architecture
+│   ├── agent.py             # DQNAgent class
+│   ├── evaluate.py          # Statistical evaluation & plotting
+│   └── train.py             # DQN training script
+├── models/                  # Checkpoints & metrics
+├── visualizations/          # Plots (Training curves, Comparisons)
+└── report.md                # Detailed project report
 ```
 
-## 🧠 How It Works
-
-### Deep Q-Learning (DQN)
-
-The agent uses DQN to learn the optimal action-value function Q(s, a):
-
-1. **Experience Collection**: Agent plays episodes, storing (state, action, reward, next_state) in replay buffer
-2. **Batch Learning**: Sample random batches from buffer to break correlation
-3. **Q-Value Update**: Minimize loss between predicted Q-values and target Q-values
-4. **Epsilon-Greedy Exploration**: Balance exploration (random actions) and exploitation (learned policy)
-5. **Target Network**: Stabilize training with a slowly-updated target network
-
-### State Representation
-
-RLCard provides a compact state representation including:
-- Player's hand value and cards
-- Dealer's visible card
-- Game phase information
-
-### Reward Structure
-
-- **Win**: +1
-- **Loss**: -1
-- **Push (Tie)**: 0
-
-## 🎓 Key Learnings
-
-1. **Exploration vs Exploitation**: Epsilon decay is crucial for balancing learning and performance
-2. **Experience Replay**: Breaking temporal correlation improves stability
-3. **Target Networks**: Reduce oscillations in Q-value estimates
-4. **Blackjack Complexity**: Even with optimal play, the house edge makes consistent winning challenging
-
-## 🔮 Future Improvements
-
-- [ ] Implement Double DQN to reduce overestimation bias
-- [ ] Add Dueling DQN architecture for better value estimation
-- [ ] Experiment with Prioritized Experience Replay
-- [ ] Train agents for other card games (Poker, Baccarat)
-- [ ] Implement tournament mode with multiple agents
-- [ ] Add hyperparameter tuning with Optuna
-- [ ] Create web-based GUI for interactive play
-
-## 📚 References
-
-- [RLCard: A Toolkit for Reinforcement Learning in Card Games](https://github.com/datamllab/rlcard)
-- [Playing Atari with Deep Reinforcement Learning (DQN Paper)](https://arxiv.org/abs/1312.5602)
-- [Human-level control through deep reinforcement learning (Nature DQN)](https://www.nature.com/articles/nature14236)
-
-## 📄 License
-
-MIT License - feel free to use this project for learning and experimentation!
-
-## 🤝 Contributing
-
-Contributions are welcome! Feel free to open issues or submit pull requests.
-
 ---
-
-**Built with** ❤️ **using RLCard, PyTorch, and Deep Reinforcement Learning**
-
-## **Contact**
-For collaborations or questions, please reach out to rohansiva123@gmail.com.
+**License**: MIT
+**Contact**: rohansiva123@gmail.com
