@@ -1,0 +1,95 @@
+[
+  {
+    "hidden_sizes": [
+      64,
+      64
+    ],
+    "lr": 0.01,
+    "final_avg_reward": -0.1,
+    "final_win_rate": 0.43,
+    "model_dir": "models/tune_h64_64_lr0.01"
+  },
+  {
+    "hidden_sizes": [
+      64,
+      64,
+      64
+    ],
+    "lr": 0.001,
+    "final_avg_reward": -0.1,
+    "final_win_rate": 0.44,
+    "model_dir": "models/tune_h64_64_64_lr0.001"
+  },
+  {
+    "hidden_sizes": [
+      64,
+      64
+    ],
+    "lr": 0.0001,
+    "final_avg_reward": -0.16,
+    "final_win_rate": 0.39,
+    "model_dir": "models/tune_h64_64_lr0.0001"
+  },
+  {
+    "hidden_sizes": [
+      64,
+      64
+    ],
+    "lr": 0.001,
+    "final_avg_reward": -0.18,
+    "final_win_rate": 0.37,
+    "model_dir": "models/tune_h64_64_lr0.001"
+  },
+  {
+    "hidden_sizes": [
+      64,
+      64,
+      64
+    ],
+    "lr": 0.01,
+    "final_avg_reward": -0.22,
+    "final_win_rate": 0.35,
+    "model_dir": "models/tune_h64_64_64_lr0.01"
+  },
+  {
+    "hidden_sizes": [
+      128,
+      128
+    ],
+    "lr": 0.01,
+    "final_avg_reward": -0.23,
+    "final_win_rate": 0.37,
+    "model_dir": "models/tune_h128_128_lr0.01"
+  },
+  {
+    "hidden_sizes": [
+      128,
+      128
+    ],
+    "lr": 0.001,
+    "final_avg_reward": -0.25,
+    "final_win_rate": 0.36,
+    "model_dir": "models/tune_h128_128_lr0.001"
+  },
+  {
+    "hidden_sizes": [
+      64,
+      64,
+      64
+    ],
+    "lr": 0.0001,
+    "final_avg_reward": -0.27,
+    "final_win_rate": 0.34,
+    "model_dir": "models/tune_h64_64_64_lr0.0001"
+  },
+  {
+    "hidden_sizes": [
+      128,
+      128
+    ],
+    "lr": 0.0001,
+    "final_avg_reward": -0.37,
+    "final_win_rate": 0.3,
+    "model_dir": "models/tune_h128_128_lr0.0001"
+  }
+]
