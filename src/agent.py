@@ -8,7 +8,7 @@ from src.model import DQN
 from src.utils import ReplayBuffer
 
 class DQNAgent:
-    def __init__(self, num_actions, state_shape, lr=0.001, gamma=0.99, epsilon=1.0, epsilon_decay=0.9995, epsilon_min=0.01, buffer_size=20000, batch_size=64, device='cpu'):
+    def __init__(self, num_actions, state_shape, hidden_sizes=[64, 64], lr=0.001, gamma=0.99, epsilon=1.0, epsilon_decay=0.9995, epsilon_min=0.01, buffer_size=20000, batch_size=64, device='cpu'):
         self.num_actions = num_actions
         self.state_shape = state_shape
         self.gamma = gamma
@@ -18,8 +18,8 @@ class DQNAgent:
         self.batch_size = batch_size
         self.device = device
 
-        self.policy_net = DQN(num_actions, state_shape).to(device)
-        self.target_net = DQN(num_actions, state_shape).to(device)
+        self.policy_net = DQN(num_actions, state_shape, hidden_sizes).to(device)
+        self.target_net = DQN(num_actions, state_shape, hidden_sizes).to(device)
         self.target_net.load_state_dict(self.policy_net.state_dict())
         self.target_net.eval()
 
