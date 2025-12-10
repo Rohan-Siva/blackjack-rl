@@ -3,7 +3,10 @@ import rlcard
 import torch
 import numpy as np
 import random
+import os
+import matplotlib.pyplot as plt
 from src.agent import DQNAgent
+from src.mc_agent import MCAgent
 from rlcard.agents import RandomAgent
 
 def evaluate(args):
@@ -51,6 +54,51 @@ def evaluate(args):
     print(f"  Std Dev: {rand_std:.4f}")
     print(f"  SEM: {rand_sem:.4f}")
 
+    print("\nEvaluating MC Agent...")
+    mc_agent = MCAgent(action_num=num_actions)
+    if os.path.exists('models/mc_agent.pkl'):
+        mc_agent.load('models/mc_agent.pkl')
+        mc_rewards = np.array(run_eval(env, mc_agent, args.num_episodes))
+        mc_mean = np.mean(mc_rewards)
+        mc_std = np.std(mc_rewards)
+        mc_sem = mc_std / np.sqrt(len(mc_rewards))
+        mc_ci = 1.96 * mc_sem
+        
+        print(f"MC Agent Average Reward: {mc_mean:.4f} ± {mc_ci:.4f} (95% CI)")
+        print(f"MC Agent Win Rate: {np.sum(mc_rewards > 0) / args.num_episodes:.4f}")
+        print(f"  Std Dev: {mc_std:.4f}")
+        print(f"  SEM: {mc_sem:.4f}")
+    else:
+        print("MC Agent model not found at models/mc_agent.pkl. Skipping.")
+        mc_mean, mc_ci = 0, 0
+
+    os.makedirs('visualizations', exist_ok=True)
+    
+    means = [dqn_mean, rand_mean, mc_mean]
+    cis = [dqn_ci, rand_ci, mc_ci]
+    labels = ['DQN Agent', 'Random Agent', 'MC Agent']
+    colors = ['#2E86AB', '#D9534F', '#F0A202']
+    
+    plt.figure(figsize=(10, 6))
+    bars = plt.bar(labels, means, yerr=cis, capsize=10, color=colors, alpha=0.8, edgecolor='black', linewidth=1.5)
+    
+    for bar, mean, ci in zip(bars, means, cis):
+        height = bar.get_height()
+        y_pos = height/2
+        plt.text(bar.get_x() + bar.get_width()/2., y_pos,
+                f'{mean:.3f}\n±{ci:.3f}',
+                ha='center', va='center', fontsize=12, fontweight='bold', color='white')
+
+    plt.axhline(0, color='black', linewidth=0.8)
+    plt.ylabel('Average Reward', fontsize=12)
+    plt.title('Agent Performance Comparison (95% CI)', fontsize=14, fontweight='bold')
+    plt.grid(axis='y', linestyle='--', alpha=0.3)
+    
+    plt.tight_layout()
+    save_path = 'visualizations/evaluation_comparison_mc.png'
+    plt.savefig(save_path, dpi=300)
+    print(f"\nComparison plot saved to {save_path}")
+
 def run_eval(env, agent, num_episodes):
     rewards = []
     for _ in range(num_episodes):
@@ -58,6 +106,8 @@ def run_eval(env, agent, num_episodes):
         while not env.is_over():
             if isinstance(agent, DQNAgent):
                 action = agent.eval_step(state['obs'])
+            elif isinstance(agent, MCAgent):
+                action = agent.eval_step(state)
             else:
                 action = agent.step(state)
             
