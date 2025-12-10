@@ -26,7 +26,7 @@ def train(args):
         state_shape = env.state_shape
         
     num_actions = env.num_actions
-    agent = DQNAgent(num_actions, state_shape, device=args.device)
+    agent = DQNAgent(num_actions, state_shape, hidden_sizes=args.hidden_sizes, lr=args.lr, device=args.device)
 
     rewards = []
     avg_rewards = []
@@ -100,6 +100,8 @@ if __name__ == '__main__':
     parser.add_argument('--target_update', type=int, default=10)
     parser.add_argument('--save_dir', type=str, default='models')
     parser.add_argument('--device', type=str, default='cpu')
+    parser.add_argument('--hidden_sizes', type=int, nargs='+', default=[64, 64])
+    parser.add_argument('--lr', type=float, default=0.001)
     args = parser.parse_args()
     
     train(args)
