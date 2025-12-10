@@ -76,6 +76,18 @@ def main():
         
     print("\nBest configuration found:")
     print(results[0])
+    
+    print("\nCleaning up non-optimal model checkpoints...")
+    best_model_dir = results[0]['model_dir']
+    
+    for r in results:
+        if r['model_dir'] != best_model_dir:
+            pth_path = os.path.join(r['model_dir'], "dqn_agent.pth")
+            if os.path.exists(pth_path):
+                print(f"Removing {pth_path}")
+                os.remove(pth_path)
+                
+    print(f"Kept best model at: {best_model_dir}/dqn_agent.pth")
 
 if __name__ == "__main__":
     main()
