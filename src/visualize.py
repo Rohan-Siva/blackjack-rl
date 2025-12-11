@@ -5,7 +5,6 @@ import argparse
 import os
 
 def create_visualizations(metrics_path, output_dir):
-    # Load metrics
     with open(metrics_path, 'r') as f:
         metrics = json.load(f)
     
@@ -14,10 +13,8 @@ def create_visualizations(metrics_path, output_dir):
     win_rates = metrics['win_rates']
     epsilon_values = metrics['epsilon_values']
     
-    # Create output directory
     os.makedirs(output_dir, exist_ok=True)
     
-    # 1. Training Curve (Average Rewards)
     plt.figure(figsize=(10, 6))
     plt.plot(episodes, avg_rewards, linewidth=2, color='#2E86AB')
     plt.xlabel('Episode', fontsize=12)
@@ -28,7 +25,6 @@ def create_visualizations(metrics_path, output_dir):
     plt.savefig(os.path.join(output_dir, 'training_curve.png'), dpi=300, bbox_inches='tight')
     plt.close()
     
-    # 2. Win Rate Over Time
     plt.figure(figsize=(10, 6))
     plt.plot(episodes, win_rates, linewidth=2, color='#06A77D')
     plt.xlabel('Episode', fontsize=12)
@@ -52,7 +48,6 @@ def create_visualizations(metrics_path, output_dir):
     plt.savefig(os.path.join(output_dir, 'epsilon_decay.png'), dpi=300, bbox_inches='tight')
     plt.close()
     
-    # 4. Combined Metrics
     fig, axes = plt.subplots(3, 1, figsize=(12, 10))
     
     axes[0].plot(episodes, avg_rewards, linewidth=2, color='#2E86AB')
